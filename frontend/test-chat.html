@@ -1,0 +1,3150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Realtime RAG document chat testing interface."
+    >
+
+    <title>RAG Workspace</title>
+
+    <!-- ICONS -->
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+
+    <style>
+
+        /* DESIGN TOKENS */
+
+        :root {
+
+            --background: #f8f9fb;
+            --surface: #ffffff;
+            --surface-subtle: #f7f8fa;
+
+            --text-primary: #17181c;
+            --text-secondary: #626873;
+            --text-tertiary: #9298a3;
+
+            --border: #e6e8ec;
+            --border-strong: #d7dae0;
+
+            --primary: #17181c;
+            --primary-hover: #000000;
+
+            --success: #198754;
+            --success-bg: #eef9f2;
+
+            --warning: #b7791f;
+            --warning-bg: #fff8e8;
+
+            --danger: #d14343;
+            --danger-bg: #fff1f1;
+
+            --accent: #5b5bd6;
+            --accent-bg: #f2f1ff;
+
+            --shadow-xs:
+                0 1px 2px rgba(16, 24, 40, .03);
+
+            --shadow-sm:
+                0 2px 8px rgba(16, 24, 40, .04);
+
+            --shadow-md:
+                0 12px 35px rgba(16, 24, 40, .07);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+        }
+
+
+        /* RESET */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+
+        html {
+            height: 100%;
+        }
+
+
+        body {
+            min-height: 100%;
+            margin: 0;
+
+            font-family:
+                Inter,
+                ui-sans-serif,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            background: var(--background);
+            color: var(--text-primary);
+
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+
+        button,
+        textarea {
+            font: inherit;
+        }
+
+
+        button {
+            border: 0;
+        }
+
+
+        /* APP */
+
+        .app {
+            min-height: 100vh;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        /* TOP NAVIGATION */
+
+        .topbar {
+
+            height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 28px;
+
+            background: rgba(255,255,255,.94);
+
+            border-bottom: 1px solid var(--border);
+
+            position: sticky;
+            top: 0;
+
+            z-index: 50;
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+
+        .brand {
+
+            display: flex;
+            align-items: center;
+
+            gap: 11px;
+        }
+
+
+        /* PROFESSIONAL AI MARK */
+
+        .brand-mark {
+
+            width: 36px;
+            height: 36px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #272a31,
+                    #0d0e11
+                );
+
+            color: #fff;
+
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.14),
+                0 3px 10px rgba(0,0,0,.14);
+        }
+
+
+        .brand-mark svg {
+
+            width: 19px;
+            height: 19px;
+
+            stroke-width: 1.8;
+        }
+
+
+        .brand-copy {
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 1px;
+        }
+
+
+        .brand-name {
+
+            font-size: 13px;
+
+            font-weight: 750;
+
+            letter-spacing: -.01em;
+
+            color: #17181c;
+        }
+
+
+        .brand-subtitle {
+
+            font-size: 10px;
+
+            color: var(--text-tertiary);
+
+            font-weight: 500;
+        }
+
+
+        /* CONNECTION STATUS */
+
+        .connection {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            min-height: 30px;
+
+            padding: 0 11px;
+
+            border-radius: 999px;
+
+            border: 1px solid var(--border);
+
+            background: #fff;
+
+            color: var(--text-secondary);
+
+            font-size: 11px;
+
+            font-weight: 650;
+        }
+
+
+        .connection-dot {
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #a7abb3;
+        }
+
+
+        .connection.connected {
+
+            color: var(--success);
+
+            background: var(--success-bg);
+
+            border-color: #d7efdf;
+        }
+
+
+        .connection.connected .connection-dot {
+
+            background: #22a05a;
+
+            box-shadow:
+                0 0 0 3px rgba(34,160,90,.1);
+        }
+
+
+        .connection.error {
+
+            color: var(--danger);
+
+            background: var(--danger-bg);
+
+            border-color: #f2d7d7;
+        }
+
+
+        .connection.error .connection-dot {
+
+            background: var(--danger);
+        }
+
+
+        /* MAIN WORKSPACE */
+
+        .workspace {
+
+            width: 100%;
+
+            max-width: 1180px;
+
+            margin: 0 auto;
+
+            padding:
+                42px 24px 70px;
+
+            flex: 1;
+        }
+
+
+        /* PAGE HEADER */
+
+        .page-header {
+
+            display: flex;
+
+            align-items: flex-end;
+
+            justify-content: space-between;
+
+            gap: 30px;
+
+            margin-bottom: 22px;
+        }
+
+
+        .page-heading {
+
+            min-width: 0;
+        }
+
+
+        .eyebrow {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            margin-bottom: 8px;
+
+            color: var(--text-tertiary);
+
+            font-size: 10px;
+
+            font-weight: 750;
+
+            letter-spacing: .09em;
+
+            text-transform: uppercase;
+        }
+
+
+        .eyebrow svg {
+
+            width: 13px;
+            height: 13px;
+
+            color: var(--accent);
+        }
+
+
+        .page-heading h1 {
+
+            margin: 0;
+
+            font-size: clamp(25px, 3vw, 32px);
+
+            line-height: 1.15;
+
+            letter-spacing: -.035em;
+
+            font-weight: 760;
+
+            color: #111216;
+        }
+
+
+        .page-heading p {
+
+            margin: 8px 0 0;
+
+            color: var(--text-secondary);
+
+            font-size: 13px;
+
+            line-height: 1.55;
+        }
+
+
+        /* DOCUMENT PANEL */
+
+        .document-panel {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            padding: 14px 16px;
+
+            margin-bottom: 18px;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: var(--radius-lg);
+
+            box-shadow: var(--shadow-xs);
+        }
+
+
+        .document-main {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            min-width: 0;
+        }
+
+
+        .document-icon {
+
+            width: 40px;
+            height: 40px;
+
+            flex: 0 0 auto;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 10px;
+
+            background: #fff2f2;
+
+            color: #d74747;
+        }
+
+
+        .document-icon svg {
+
+            width: 19px;
+            height: 19px;
+        }
+
+
+        .document-details {
+
+            min-width: 0;
+        }
+
+
+        .document-title-row {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 3px;
+        }
+
+
+        .document-title {
+
+            font-size: 12px;
+
+            font-weight: 720;
+
+            color: #25272c;
+        }
+
+
+        .document-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 4px;
+
+            padding: 3px 7px;
+
+            border-radius: 999px;
+
+            background: var(--success-bg);
+
+            color: var(--success);
+
+            font-size: 9px;
+
+            font-weight: 700;
+        }
+
+
+        .document-badge svg {
+
+            width: 10px;
+            height: 10px;
+        }
+
+
+        .document-id {
+
+            max-width: 680px;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+
+            color: var(--text-tertiary);
+
+            font-size: 10px;
+        }
+
+
+        .document-meta {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+
+            color: var(--text-tertiary);
+
+            font-size: 10px;
+
+            white-space: nowrap;
+        }
+
+
+        .document-meta-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 5px;
+        }
+
+
+        .document-meta-item svg {
+
+            width: 13px;
+            height: 13px;
+        }
+
+
+        /* CHAT SHELL */
+
+        .chat-shell {
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: var(--radius-xl);
+
+            overflow: hidden;
+
+            box-shadow: var(--shadow-md);
+        }
+
+
+        /* CHAT HEADER */
+
+        .chat-header {
+
+            height: 64px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 20px;
+
+            border-bottom: 1px solid var(--border);
+
+            background: #fff;
+        }
+
+
+        .chat-heading {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+        }
+
+
+        .chat-avatar {
+
+            width: 32px;
+            height: 32px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 9px;
+
+            background: var(--accent-bg);
+
+            color: var(--accent);
+        }
+
+
+        .chat-avatar svg {
+
+            width: 16px;
+            height: 16px;
+        }
+
+
+        .chat-title {
+
+            font-size: 12px;
+
+            font-weight: 750;
+
+            color: #202126;
+        }
+
+
+        .chat-description {
+
+            margin-top: 2px;
+
+            font-size: 10px;
+
+            color: var(--text-tertiary);
+        }
+
+
+        .chat-actions {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+        }
+
+
+        .icon-button {
+
+            width: 32px;
+            height: 32px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 8px;
+
+            background: transparent;
+
+            color: var(--text-secondary);
+
+            cursor: pointer;
+
+            transition:
+                background .15s ease,
+                color .15s ease;
+        }
+
+
+        .icon-button:hover {
+
+            background: var(--surface-subtle);
+
+            color: var(--text-primary);
+        }
+
+
+        .icon-button:disabled {
+
+            opacity: .45;
+
+            cursor: not-allowed;
+        }
+
+
+        .icon-button svg {
+
+            width: 15px;
+            height: 15px;
+        }
+
+
+        /* MESSAGES */
+
+        .messages {
+
+            height: 540px;
+
+            overflow-y: auto;
+
+            padding: 30px 32px;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    #fafbfc,
+                    #f8f9fb
+                );
+
+            scroll-behavior: smooth;
+        }
+
+
+        .messages::-webkit-scrollbar {
+
+            width: 7px;
+        }
+
+
+        .messages::-webkit-scrollbar-track {
+
+            background: transparent;
+        }
+
+
+        .messages::-webkit-scrollbar-thumb {
+
+            background: #d7dae0;
+
+            border-radius: 999px;
+        }
+
+
+        /* EMPTY STATE */
+
+        .empty-state {
+
+            min-height: 440px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+        }
+
+
+        .empty-mark {
+
+            width: 58px;
+            height: 58px;
+
+            display: grid;
+            place-items: center;
+
+            margin-bottom: 17px;
+
+            border-radius: 16px;
+
+            background: #fff;
+
+            border: 1px solid var(--border);
+
+            color: var(--accent);
+
+            box-shadow: var(--shadow-sm);
+        }
+
+
+        .empty-mark svg {
+
+            width: 25px;
+            height: 25px;
+
+            stroke-width: 1.6;
+        }
+
+
+        .empty-state h2 {
+
+            margin: 0 0 7px;
+
+            color: #292b30;
+
+            font-size: 15px;
+
+            font-weight: 720;
+
+            letter-spacing: -.01em;
+        }
+
+
+        .empty-state p {
+
+            max-width: 390px;
+
+            margin: 0;
+
+            color: var(--text-tertiary);
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+
+        .suggestions {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            justify-content: center;
+
+            gap: 7px;
+
+            margin-top: 20px;
+        }
+
+
+        .suggestion {
+
+            padding: 8px 11px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 8px;
+
+            background: #fff;
+
+            color: var(--text-secondary);
+
+            font-size: 10px;
+
+            cursor: pointer;
+
+            transition: .15s ease;
+        }
+
+
+        .suggestion:hover {
+
+            border-color: var(--border-strong);
+
+            color: var(--text-primary);
+
+            transform: translateY(-1px);
+        }
+
+
+        /* MESSAGE */
+
+        .message {
+
+            display: flex;
+
+            margin-bottom: 25px;
+
+            animation:
+                message-in .22s ease both;
+        }
+
+
+        @keyframes message-in {
+
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        .message.user {
+
+            justify-content: flex-end;
+        }
+
+
+        .message-content {
+
+            width: fit-content;
+
+            max-width: min(760px, 82%);
+        }
+
+
+        .message.user .message-content {
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: flex-end;
+        }
+
+
+        .message-meta {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            margin-bottom: 6px;
+
+            color: var(--text-tertiary);
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            letter-spacing: .06em;
+
+            text-transform: uppercase;
+        }
+
+
+        .message.user .message-meta {
+
+            justify-content: flex-end;
+        }
+
+
+        .message-meta-icon {
+
+            width: 16px;
+            height: 16px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 5px;
+
+            background: #e9ebef;
+
+            color: #6d727c;
+        }
+
+
+        .message-meta-icon svg {
+
+            width: 10px;
+            height: 10px;
+        }
+
+
+        .message.user .message-meta-icon {
+
+            background: #25272d;
+
+            color: #fff;
+        }
+
+
+        .bubble {
+
+            padding: 13px 15px;
+
+            border-radius: 13px;
+
+            font-size: 13px;
+
+            line-height: 1.7;
+
+            white-space: pre-wrap;
+
+            overflow-wrap: anywhere;
+        }
+
+
+        .message.user .bubble {
+
+            color: #fff;
+
+            background: #191a1e;
+
+            border-bottom-right-radius: 4px;
+
+            box-shadow:
+                0 2px 6px rgba(0,0,0,.08);
+        }
+
+
+        .message.assistant .bubble {
+
+            color: #303238;
+
+            background: #fff;
+
+            border: 1px solid var(--border);
+
+            border-bottom-left-radius: 4px;
+
+            box-shadow: var(--shadow-xs);
+        }
+
+
+        .message.system .bubble {
+
+            color: var(--danger);
+
+            background: var(--danger-bg);
+
+            border: 1px solid #f0d8d8;
+        }
+
+
+        /* RETRIEVAL EVENT */
+
+        .retrieval-event {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            margin:
+                0 0 18px 25px;
+
+            padding: 7px 10px;
+
+            border-radius: 7px;
+
+            background: var(--accent-bg);
+
+            color: var(--accent);
+
+            font-size: 10px;
+
+            font-weight: 650;
+        }
+
+
+        .retrieval-event svg {
+
+            width: 12px;
+            height: 12px;
+        }
+
+
+        /* TYPING INDICATOR */
+
+        .typing {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 4px;
+
+            min-height: 18px;
+        }
+
+
+        .typing span {
+
+            width: 5px;
+            height: 5px;
+
+            border-radius: 50%;
+
+            background: #9da2ab;
+
+            animation:
+                typing 1.15s infinite ease-in-out;
+        }
+
+
+        .typing span:nth-child(2) {
+
+            animation-delay: .14s;
+        }
+
+
+        .typing span:nth-child(3) {
+
+            animation-delay: .28s;
+        }
+
+
+        @keyframes typing {
+
+            0%,
+            70%,
+            100% {
+                opacity: .35;
+                transform: translateY(0);
+            }
+
+            35% {
+                opacity: 1;
+                transform: translateY(-3px);
+            }
+        }
+
+
+        /* INPUT */
+
+        .composer {
+
+            padding: 16px 18px 18px;
+
+            background: #fff;
+
+            border-top: 1px solid var(--border);
+        }
+
+
+        .composer-box {
+
+            display: flex;
+
+            align-items: flex-end;
+
+            gap: 7px;
+
+            padding: 6px;
+
+            background: #fff;
+
+            border: 1px solid var(--border-strong);
+
+            border-radius: 13px;
+
+            transition:
+                border-color .15s ease,
+                box-shadow .15s ease;
+        }
+
+
+        .composer-box:focus-within {
+
+            border-color: #b7bac1;
+
+            box-shadow:
+                0 0 0 3px rgba(17,18,22,.045);
+        }
+
+
+        #question {
+
+            flex: 1;
+
+            min-height: 42px;
+
+            max-height: 130px;
+
+            padding:
+                10px 10px;
+
+            resize: none;
+
+            border: 0;
+
+            outline: 0;
+
+            background: transparent;
+
+            color: var(--text-primary);
+
+            font-size: 13px;
+
+            line-height: 1.55;
+        }
+
+
+        #question::placeholder {
+
+            color: #a1a6af;
+        }
+
+
+        .composer-tools {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 4px;
+
+            padding-bottom: 2px;
+        }
+
+
+        .send-button {
+
+            width: 38px;
+            height: 38px;
+
+            display: grid;
+            place-items: center;
+
+            flex: 0 0 auto;
+
+            border-radius: 9px;
+
+            background: var(--primary);
+
+            color: #fff;
+
+            cursor: pointer;
+
+            transition:
+                transform .15s ease,
+                background .15s ease;
+        }
+
+
+        .send-button:hover:not(:disabled) {
+
+            background: var(--primary-hover);
+
+            transform: translateY(-1px);
+        }
+
+
+        .send-button:disabled {
+
+            background: #d9dce1;
+
+            color: #fff;
+
+            cursor: not-allowed;
+
+            transform: none;
+        }
+
+
+        .send-button svg {
+
+            width: 16px;
+            height: 16px;
+        }
+
+
+        .composer-footer {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 10px;
+
+            padding:
+                8px 3px 0;
+        }
+
+
+        .composer-hint {
+
+            color: var(--text-tertiary);
+
+            font-size: 9px;
+        }
+
+
+        .composer-hint kbd {
+
+            display: inline-block;
+
+            padding: 2px 4px;
+
+            margin: 0 2px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 4px;
+
+            background: var(--surface-subtle);
+
+            font-size: 8px;
+
+            font-family: inherit;
+        }
+
+
+        .char-count {
+
+            color: var(--text-tertiary);
+
+            font-size: 9px;
+        }
+
+
+        /* FOOTER */
+
+        .footer {
+
+            padding: 18px 24px 25px;
+
+            text-align: center;
+
+            color: var(--text-tertiary);
+
+            font-size: 9px;
+        }
+
+
+        .footer strong {
+
+            color: var(--text-secondary);
+
+            font-weight: 650;
+        }
+
+
+        /* RESPONSIVE */
+
+        @media (max-width: 760px) {
+
+            .topbar {
+
+                padding: 0 15px;
+            }
+
+
+            .brand-subtitle {
+
+                display: none;
+            }
+
+
+            .workspace {
+
+                padding:
+                    28px 12px 45px;
+            }
+
+
+            .page-header {
+
+                display: block;
+
+                margin-bottom: 18px;
+            }
+
+
+            .page-heading p {
+
+                max-width: 500px;
+            }
+
+
+            .document-panel {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+
+                gap: 12px;
+            }
+
+
+            .document-meta {
+
+                padding-left: 52px;
+            }
+
+
+            .document-id {
+
+                max-width: calc(100vw - 100px);
+            }
+
+
+            .chat-shell {
+
+                border-radius: 15px;
+            }
+
+
+            .chat-header {
+
+                padding: 0 14px;
+            }
+
+
+            .chat-description {
+
+                display: none;
+            }
+
+
+            .messages {
+
+                height: 500px;
+
+                padding:
+                    22px 15px;
+            }
+
+
+            .message-content {
+
+                max-width: 90%;
+            }
+
+
+            .composer {
+
+                padding:
+                    12px;
+            }
+
+
+            .composer-hint {
+
+                display: none;
+            }
+
+
+            .composer-footer {
+
+                justify-content: flex-end;
+            }
+        }
+
+
+        @media (max-width: 450px) {
+
+            .brand-name {
+
+                font-size: 12px;
+            }
+
+
+            .connection {
+
+                padding: 0 8px;
+            }
+
+
+            .connection-text {
+
+                display: none;
+            }
+
+
+            .page-heading h1 {
+
+                font-size: 25px;
+            }
+
+
+            .document-meta {
+
+                display: none;
+            }
+
+
+            .messages {
+
+                height: 470px;
+            }
+
+
+            .message-content {
+
+                max-width: 94%;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- TOP BAR -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+
+                <i
+                    data-lucide="sparkles"
+                ></i>
+
+            </div>
+
+            <div class="brand-copy">
+
+                <div class="brand-name">
+                    RAG Workspace
+                </div>
+
+                <div class="brand-subtitle">
+                    Realtime document intelligence
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="connectionStatus"
+            class="connection"
+        >
+
+            <span class="connection-dot"></span>
+
+            <span
+                id="connectionText"
+                class="connection-text"
+            >
+                Connecting
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- WORKSPACE -->
+
+    <main class="workspace">
+
+
+        <!-- PAGE HEADER -->
+
+        <section class="page-header">
+
+            <div class="page-heading">
+
+                <div class="eyebrow">
+
+                    <i
+                        data-lucide="bot"
+                    ></i>
+
+                    AI Document Assistant
+
+                </div>
+
+                <h1>
+                    Ask your document
+                </h1>
+
+                <p>
+                    Search your indexed knowledge base and receive
+                    grounded answers from Gemini in real time.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- DOCUMENT CONTEXT -->
+
+        <section class="document-panel">
+
+            <div class="document-main">
+
+                <div class="document-icon">
+
+                    <i
+                        data-lucide="file-text"
+                    ></i>
+
+                </div>
+
+
+                <div class="document-details">
+
+                    <div class="document-title-row">
+
+                        <span class="document-title">
+                            Active document
+                        </span>
+
+                        <span class="document-badge">
+
+                            <i
+                                data-lucide="check"
+                            ></i>
+
+                            Indexed
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="documentIdDisplay"
+                        class="document-id"
+                    >
+                        2f6d036e-e6d7-4148-a4d9-f64f131dc007
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="document-meta">
+
+                <div class="document-meta-item">
+
+                    <i
+                        data-lucide="database"
+                    ></i>
+
+                    PostgreSQL
+
+                </div>
+
+
+                <div class="document-meta-item">
+
+                    <i
+                        data-lucide="scan-search"
+                    ></i>
+
+                    pgvector
+
+                </div>
+
+
+                <div class="document-meta-item">
+
+                    <i
+                        data-lucide="sparkles"
+                    ></i>
+
+                    Gemini
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- CHAT -->
+
+        <section class="chat-shell">
+
+
+            <!-- CHAT HEADER -->
+
+            <header class="chat-header">
+
+                <div class="chat-heading">
+
+                    <div class="chat-avatar">
+
+                        <i
+                            data-lucide="message-square-text"
+                        ></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="chat-title">
+                            Document conversation
+                        </div>
+
+                        <div class="chat-description">
+                            Retrieval-augmented responses
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chat-actions">
+
+                    <button
+                        id="clearButton"
+                        class="icon-button"
+                        type="button"
+                        title="Clear conversation"
+                        aria-label="Clear conversation"
+                    >
+
+                        <i
+                            data-lucide="trash-2"
+                        ></i>
+
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- MESSAGE AREA -->
+
+            <div
+                id="messages"
+                class="messages"
+                aria-live="polite"
+            >
+
+
+                <!-- EMPTY STATE -->
+
+                <div
+                    id="emptyState"
+                    class="empty-state"
+                >
+
+                    <div class="empty-mark">
+
+                        <i
+                            data-lucide="sparkles"
+                        ></i>
+
+                    </div>
+
+
+                    <h2>
+                        Ready to answer
+                    </h2>
+
+
+                    <p>
+                        Ask a specific question about your indexed
+                        document. Responses are generated using
+                        retrieved document context.
+                    </p>
+
+
+                    <div class="suggestions">
+
+                        <button
+                            class="suggestion"
+                            type="button"
+                            data-question="What is the main purpose of this document?"
+                        >
+                            Summarize the document
+                        </button>
+
+                        <button
+                            class="suggestion"
+                            type="button"
+                            data-question="What are the most important rules or requirements?"
+                        >
+                            Find key requirements
+                        </button>
+
+                        <button
+                            class="suggestion"
+                            type="button"
+                            data-question="What are the most important points I should know?"
+                        >
+                            Key points
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- COMPOSER -->
+
+            <div class="composer">
+
+                <div class="composer-box">
+
+                    <textarea
+                        id="question"
+                        rows="1"
+                        maxlength="4000"
+                        placeholder="Ask a question about your document..."
+                        aria-label="Ask a question"
+                    ></textarea>
+
+
+                    <div class="composer-tools">
+
+                        <button
+                            id="sendButton"
+                            class="send-button"
+                            type="button"
+                            title="Send message"
+                            aria-label="Send message"
+                            disabled
+                        >
+
+                            <i
+                                data-lucide="arrow-up"
+                            ></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="composer-footer">
+
+                    <div class="composer-hint">
+
+                        <kbd>Enter</kbd>
+                        to send
+
+                        <span>·</span>
+
+                        <kbd>Shift</kbd>
+                        +
+                        <kbd>Enter</kbd>
+                        for a new line
+
+                    </div>
+
+
+                    <div
+                        id="charCount"
+                        class="char-count"
+                    >
+                        0 / 4000
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+
+        Powered by
+        <strong>FastAPI</strong>
+        ·
+        <strong>PostgreSQL</strong>
+        ·
+        <strong>pgvector</strong>
+        ·
+        <strong>Gemini</strong>
+
+    </footer>
+
+</div>
+
+
+<script>
+
+    /* CONFIGURATION */
+
+    const CONFIG = {
+
+        documentId:
+            "2f6d036e-e6d7-4148-a4d9-f64f131dc007",
+
+        websocketUrl:
+            "ws://localhost:8000/ws/chat",
+
+        reconnectDelay:
+            2500,
+
+        maxQuestionLength:
+            4000
+
+    };
+
+
+    /* DOM */
+
+    const elements = {
+
+        messages:
+            document.getElementById("messages"),
+
+        emptyState:
+            document.getElementById("emptyState"),
+
+        question:
+            document.getElementById("question"),
+
+        sendButton:
+            document.getElementById("sendButton"),
+
+        clearButton:
+            document.getElementById("clearButton"),
+
+        connection:
+            document.getElementById("connectionStatus"),
+
+        connectionText:
+            document.getElementById("connectionText"),
+
+        documentId:
+            document.getElementById("documentIdDisplay"),
+
+        charCount:
+            document.getElementById("charCount")
+
+    };
+
+
+    /* STATE */
+
+    let socket = null;
+
+    let reconnectTimer = null;
+
+    let isGenerating = false;
+
+    let currentAssistantBubble = null;
+
+    let currentAssistantMessage = null;
+
+
+    /* INITIALIZE ICONS */
+
+    function initializeIcons() {
+
+        if (
+            typeof lucide !== "undefined"
+        ) {
+
+            lucide.createIcons();
+
+        }
+
+    }
+
+
+    /* CONNECTION STATE */
+
+    function setConnectionState(
+        state,
+        text
+    ) {
+
+        elements.connection.className =
+            "connection";
+
+        if (
+            state === "connected"
+        ) {
+
+            elements.connection.classList.add(
+                "connected"
+            );
+
+        }
+
+
+        if (
+            state === "error"
+        ) {
+
+            elements.connection.classList.add(
+                "error"
+            );
+
+        }
+
+
+        elements.connectionText.textContent =
+            text;
+
+        updateSendButton();
+
+    }
+
+
+    /* WEBSOCKET CONNECTION */
+
+    function connectWebSocket() {
+
+        if (
+            socket &&
+            (
+                socket.readyState ===
+                WebSocket.OPEN ||
+
+                socket.readyState ===
+                WebSocket.CONNECTING
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        setConnectionState(
+            "connecting",
+            "Connecting"
+        );
+
+
+        try {
+
+            socket =
+                new WebSocket(
+                    CONFIG.websocketUrl
+                );
+
+        }
+        catch (error) {
+
+            console.error(
+                "WebSocket creation failed:",
+                error
+            );
+
+            handleDisconnected();
+
+            return;
+
+        }
+
+
+        socket.onopen = () => {
+
+            console.log(
+                "RAG WebSocket connected."
+            );
+
+            setConnectionState(
+                "connected",
+                "Connected"
+            );
+
+            updateSendButton();
+
+        };
+
+
+        socket.onmessage = (
+            event
+        ) => {
+
+            handleServerMessage(
+                event.data
+            );
+
+        };
+
+
+        socket.onerror = (
+            error
+        ) => {
+
+            console.error(
+                "RAG WebSocket error:",
+                error
+            );
+
+            setConnectionState(
+                "error",
+                "Connection error"
+            );
+
+        };
+
+
+        socket.onclose = () => {
+
+            console.log(
+                "RAG WebSocket disconnected."
+            );
+
+            handleDisconnected();
+
+        };
+
+    }
+
+
+    /* DISCONNECTED */
+
+    function handleDisconnected() {
+
+        setConnectionState(
+            "error",
+            "Disconnected"
+        );
+
+
+        updateSendButton();
+
+
+        if (
+            reconnectTimer
+        ) {
+
+            return;
+
+        }
+
+
+        reconnectTimer =
+            setTimeout(
+                () => {
+
+                    reconnectTimer =
+                        null;
+
+                    connectWebSocket();
+
+                },
+                CONFIG.reconnectDelay
+            );
+
+    }
+
+
+    /* SERVER MESSAGE */
+
+    function handleServerMessage(
+        rawData
+    ) {
+
+        let data;
+
+
+        try {
+
+            data =
+                JSON.parse(rawData);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Invalid server message:",
+                rawData
+            );
+
+            return;
+
+        }
+
+
+        switch (
+            data.type
+        ) {
+
+            case "retrieval":
+
+                handleRetrieval(
+                    data
+                );
+
+                break;
+
+
+            case "token":
+
+                handleToken(
+                    data
+                );
+
+                break;
+
+
+            case "done":
+
+                handleDone();
+
+                break;
+
+
+            case "error":
+
+                handleServerError(
+                    data
+                );
+
+                break;
+
+
+            default:
+
+                console.warn(
+                    "Unknown WebSocket event:",
+                    data
+                );
+
+        }
+
+    }
+
+
+    /* RETRIEVAL EVENT */
+
+    function handleRetrieval(
+        data
+    ) {
+
+        const count =
+            Number(
+                data.count || 0
+            );
+
+
+        addRetrievalEvent(
+            count
+        );
+
+
+        createAssistantMessage();
+
+    }
+
+
+    /* TOKEN STREAM */
+
+    function handleToken(
+        data
+    ) {
+
+        if (
+            !currentAssistantBubble
+        ) {
+
+            createAssistantMessage();
+
+        }
+
+
+        const content =
+            typeof data.content ===
+            "string"
+
+                ? data.content
+
+                : "";
+
+
+
+        if (
+            currentAssistantBubble
+                .dataset
+                .typing === "true"
+        ) {
+
+            currentAssistantBubble
+                .textContent = "";
+
+            currentAssistantBubble
+                .dataset
+                .typing = "false";
+
+        }
+
+
+        currentAssistantBubble
+            .textContent += content;
+
+
+        scrollToBottom();
+
+    }
+
+
+    /* DONE */
+
+    function handleDone() {
+
+        isGenerating = false;
+
+        currentAssistantBubble = null;
+
+        currentAssistantMessage = null;
+
+        updateSendButton();
+
+        elements.question.focus();
+
+    }
+
+
+    /* SERVER ERROR */
+
+    function handleServerError(
+        data
+    ) {
+
+        const message =
+            data.message ||
+            "The server could not process the request.";
+
+
+       
+        if (
+            currentAssistantMessage
+        ) {
+
+            currentAssistantMessage
+                .remove();
+
+        }
+
+
+        currentAssistantBubble = null;
+
+        currentAssistantMessage = null;
+
+        isGenerating = false;
+
+
+        addSystemMessage(
+            message
+        );
+
+
+        updateSendButton();
+
+    }
+
+
+    /* SEND QUESTION */
+
+    function sendQuestion() {
+
+        const question =
+            elements.question
+                .value
+                .trim();
+
+
+        if (!question) {
+
+            return;
+
+        }
+
+
+        if (
+            question.length >
+            CONFIG.maxQuestionLength
+        ) {
+
+            addSystemMessage(
+                `Question is too long. Please keep it under ${CONFIG.maxQuestionLength} characters.`
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !socket ||
+            socket.readyState !==
+            WebSocket.OPEN
+        ) {
+
+            addSystemMessage(
+                "The realtime connection is not available. Reconnecting..."
+            );
+
+            connectWebSocket();
+
+            return;
+
+        }
+
+
+        if (
+            isGenerating
+        ) {
+
+            return;
+
+        }
+
+
+        isGenerating = true;
+
+        currentAssistantBubble = null;
+
+        currentAssistantMessage = null;
+
+
+        removeEmptyState();
+
+
+        addUserMessage(
+            question
+        );
+
+
+        elements.question.value = "";
+
+        updateComposer();
+
+
+        updateSendButton();
+
+
+        try {
+
+            socket.send(
+                JSON.stringify({
+
+                    message:
+                        question,
+
+                    document_id:
+                        CONFIG.documentId
+
+                })
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "Failed to send message:",
+                error
+            );
+
+            isGenerating = false;
+
+            addSystemMessage(
+                "Unable to send your question."
+            );
+
+            updateSendButton();
+
+        }
+
+    }
+
+
+    /* USER MESSAGE */
+
+    function addUserMessage(
+        text
+    ) {
+
+        const message =
+            document.createElement(
+                "div"
+            );
+
+        message.className =
+            "message user";
+
+
+        const content =
+            document.createElement(
+                "div"
+            );
+
+        content.className =
+            "message-content";
+
+
+        const meta =
+            createMessageMeta(
+                "You",
+                "user-round"
+            );
+
+
+        const bubble =
+            document.createElement(
+                "div"
+            );
+
+        bubble.className =
+            "bubble";
+
+        bubble.textContent =
+            text;
+
+
+        content.appendChild(
+            meta
+        );
+
+        content.appendChild(
+            bubble
+        );
+
+        message.appendChild(
+            content
+        );
+
+
+        elements.messages.appendChild(
+            message
+        );
+
+
+        scrollToBottom();
+
+    }
+
+
+    /* ASSISTANT MESSAGE  */
+
+    function createAssistantMessage() {
+
+        if (
+            currentAssistantMessage
+        ) {
+
+            return;
+
+        }
+
+
+        const message =
+            document.createElement(
+                "div"
+            );
+
+        message.className =
+            "message assistant";
+
+
+        const content =
+            document.createElement(
+                "div"
+            );
+
+        content.className =
+            "message-content";
+
+
+        const meta =
+            createMessageMeta(
+                "RAG Assistant",
+                "sparkles"
+            );
+
+
+        const bubble =
+            document.createElement(
+                "div"
+            );
+
+        bubble.className =
+            "bubble";
+
+        bubble.dataset.typing =
+            "true";
+
+
+        bubble.innerHTML = `
+            <span class="typing">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+        `;
+
+
+        content.appendChild(
+            meta
+        );
+
+        content.appendChild(
+            bubble
+        );
+
+        message.appendChild(
+            content
+        );
+
+
+        elements.messages.appendChild(
+            message
+        );
+
+
+        currentAssistantMessage =
+            message;
+
+        currentAssistantBubble =
+            bubble;
+
+
+        scrollToBottom();
+
+    }
+
+
+    /* MESSAGE META  */
+
+    function createMessageMeta(
+        label,
+        icon
+    ) {
+
+        const meta =
+            document.createElement(
+                "div"
+            );
+
+        meta.className =
+            "message-meta";
+
+
+        const iconWrapper =
+            document.createElement(
+                "span"
+            );
+
+        iconWrapper.className =
+            "message-meta-icon";
+
+
+        const iconElement =
+            document.createElement(
+                "i"
+            );
+
+        iconElement.setAttribute(
+            "data-lucide",
+            icon
+        );
+
+
+        const labelElement =
+            document.createElement(
+                "span"
+            );
+
+        labelElement.textContent =
+            label;
+
+
+        iconWrapper.appendChild(
+            iconElement
+        );
+
+
+        meta.appendChild(
+            iconWrapper
+        );
+
+        meta.appendChild(
+            labelElement
+        );
+
+
+        if (
+            typeof lucide !==
+            "undefined"
+        ) {
+
+            lucide.createIcons({
+                nodes: [
+                    iconElement
+                ]
+            });
+
+        }
+
+
+        return meta;
+
+    }
+
+
+    /* RETRIEVAL INFO */
+
+    function addRetrievalEvent(
+        count
+    ) {
+
+        const event =
+            document.createElement(
+                "div"
+            );
+
+        event.className =
+            "retrieval-event";
+
+
+        const icon =
+            document.createElement(
+                "i"
+            );
+
+        icon.setAttribute(
+            "data-lucide",
+            "scan-search"
+        );
+
+
+        const text =
+            document.createElement(
+                "span"
+            );
+
+
+        if (
+            count === 1
+        ) {
+
+            text.textContent =
+                "Retrieved 1 relevant chunk";
+
+        }
+        else {
+
+            text.textContent =
+                `Retrieved ${count} relevant chunks`;
+
+        }
+
+
+        event.appendChild(
+            icon
+        );
+
+        event.appendChild(
+            text
+        );
+
+
+        elements.messages.appendChild(
+            event
+        );
+
+
+        if (
+            typeof lucide !==
+            "undefined"
+        ) {
+
+            lucide.createIcons({
+                nodes: [icon]
+            });
+
+        }
+
+
+        scrollToBottom();
+
+    }
+
+
+    /* SYSTEM MESSAGE */
+
+    function addSystemMessage(
+        text
+    ) {
+
+        removeEmptyState();
+
+
+        const message =
+            document.createElement(
+                "div"
+            );
+
+        message.className =
+            "message system";
+
+
+        const content =
+            document.createElement(
+                "div"
+            );
+
+        content.className =
+            "message-content";
+
+
+        const meta =
+            createMessageMeta(
+                "System",
+                "alert-circle"
+            );
+
+
+        const bubble =
+            document.createElement(
+                "div"
+            );
+
+        bubble.className =
+            "bubble";
+
+        bubble.textContent =
+            text;
+
+
+        content.appendChild(
+            meta
+        );
+
+        content.appendChild(
+            bubble
+        );
+
+        message.appendChild(
+            content
+        );
+
+
+        elements.messages.appendChild(
+            message
+        );
+
+
+        scrollToBottom();
+
+    }
+
+
+    /* CLEAR CHAT */
+
+    function clearChat() {
+
+        if (
+            isGenerating
+        ) {
+
+            return;
+
+        }
+
+
+        elements.messages.innerHTML = "";
+
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.id =
+            "emptyState";
+
+        empty.className =
+            "empty-state";
+
+        empty.innerHTML = `
+
+            <div class="empty-mark">
+
+                <i data-lucide="sparkles"></i>
+
+            </div>
+
+            <h2>
+                Ready to answer
+            </h2>
+
+            <p>
+                Ask a specific question about your indexed
+                document. Responses are generated using
+                retrieved document context.
+            </p>
+
+            <div class="suggestions">
+
+                <button
+                    class="suggestion"
+                    type="button"
+                    data-question="What is the main purpose of this document?"
+                >
+                    Summarize the document
+                </button>
+
+                <button
+                    class="suggestion"
+                    type="button"
+                    data-question="What are the most important rules or requirements?"
+                >
+                    Find key requirements
+                </button>
+
+                <button
+                    class="suggestion"
+                    type="button"
+                    data-question="What are the most important points I should know?"
+                >
+                    Key points
+                </button>
+
+            </div>
+        `;
+
+
+        elements.messages.appendChild(
+            empty
+        );
+
+
+        elements.emptyState =
+            empty;
+
+
+        currentAssistantBubble = null;
+
+        currentAssistantMessage = null;
+
+
+        bindSuggestions();
+
+        initializeIcons();
+
+        updateSendButton();
+
+    }
+
+
+    /* REMOVE EMPTY STATE */
+
+    function removeEmptyState() {
+
+        const state =
+            document.getElementById(
+                "emptyState"
+            );
+
+
+        if (
+            state
+        ) {
+
+            state.remove();
+
+        }
+
+    }
+
+
+    /* SUGGESTIONS */
+
+    function bindSuggestions() {
+
+        const suggestions =
+            document.querySelectorAll(
+                ".suggestion"
+            );
+
+
+        suggestions.forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const question =
+                            button.dataset.question;
+
+                        elements.question.value =
+                            question;
+
+                        updateComposer();
+
+                        elements.question.focus();
+
+                    }
+                );
+
+            }
+        );
+
+    }
+
+
+    /* SEND BUTTON */
+
+    function updateSendButton() {
+
+        const connected =
+            socket &&
+            socket.readyState ===
+            WebSocket.OPEN;
+
+
+        const hasText =
+            elements.question.value
+                .trim()
+                .length > 0;
+
+
+        elements.sendButton.disabled =
+            !connected ||
+            !hasText ||
+            isGenerating;
+
+    }
+
+
+    /* COMPOSER */
+
+    function updateComposer() {
+
+        const input =
+            elements.question;
+
+
+        input.style.height =
+            "auto";
+
+
+        input.style.height =
+            Math.min(
+                input.scrollHeight,
+                130
+            ) + "px";
+
+
+        const length =
+            input.value.length;
+
+
+        elements.charCount.textContent =
+            `${length} / ${CONFIG.maxQuestionLength}`;
+
+
+        updateSendButton();
+
+    }
+
+
+    /* KEYBOARD */
+
+    function handleKeyDown(
+        event
+    ) {
+
+        if (
+            event.key ===
+            "Enter" &&
+            !event.shiftKey
+        ) {
+
+            event.preventDefault();
+
+            sendQuestion();
+
+        }
+
+    }
+
+
+    /* SCROLL  */
+
+    function scrollToBottom() {
+
+        requestAnimationFrame(
+            () => {
+
+                elements.messages.scrollTop =
+                    elements.messages.scrollHeight;
+
+            }
+        );
+
+    }
+
+
+    /* EVENT LISTENERS */
+
+    elements.sendButton.addEventListener(
+        "click",
+        sendQuestion
+    );
+
+
+    elements.clearButton.addEventListener(
+        "click",
+        clearChat
+    );
+
+
+    elements.question.addEventListener(
+        "input",
+        updateComposer
+    );
+
+
+    elements.question.addEventListener(
+        "keydown",
+        handleKeyDown
+    );
+
+
+    /* STARTUP */
+
+    elements.documentId.textContent =
+        CONFIG.documentId;
+
+
+    bindSuggestions();
+
+    initializeIcons();
+
+    updateComposer();
+
+    connectWebSocket();
+
+</script>
+
+</body>
+</html>

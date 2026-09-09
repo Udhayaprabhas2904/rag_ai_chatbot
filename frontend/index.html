@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Realtime RAG Chat</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         LEFT SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <!-- Window controls -->
+        <div class="window-controls">
+
+            <span class="window-dot green"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot red"></span>
+
+        </div>
+
+
+        <!-- User -->
+        <div class="user-profile">
+
+            <div class="avatar">
+                AI
+            </div>
+
+            <div class="user-info">
+
+                <strong>
+                    My Workspace
+                </strong>
+
+                <span>
+                    RAG Project
+                </span>
+
+            </div>
+
+            <span class="profile-arrow">
+                ⌄
+            </span>
+
+        </div>
+
+
+        <!-- Workspace -->
+        <div class="sidebar-section">
+
+            <div class="sidebar-label">
+                WORKSPACE
+            </div>
+
+            <button
+                class="nav-item active"
+                type="button"
+            >
+
+                <span class="nav-icon">
+                    ⌂
+                </span>
+
+                <span>
+                    Home
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <!-- Project / Design System -->
+        <div class="sidebar-section">
+
+            <div class="sidebar-label">
+                PROJECT
+            </div>
+
+            <button
+                class="nav-item project-item"
+                type="button"
+            >
+
+                <span class="nav-icon">
+                    ◈
+                </span>
+
+                <span>
+                    Design System
+                </span>
+
+            </button>
+
+
+            <div class="sub-item">
+                <span class="tag-dot"></span>
+                Document ID
+            </div>
+
+            <div class="sub-item">
+                <span class="tag-dot"></span>
+                Chunks
+            </div>
+
+            <div class="sub-item">
+                <span class="tag-dot"></span>
+                Embeddings
+            </div>
+
+            <div class="sub-item">
+                <span class="tag-dot"></span>
+                Metadata
+            </div>
+
+            <div class="sub-item">
+                <span class="tag-dot"></span>
+                Vector DB
+            </div>
+
+            <div class="sub-item">
+                <span class="tag-dot"></span>
+                Retrieval
+            </div>
+
+            <div class="sub-item">
+                <span class="tag-dot"></span>
+                Context
+            </div>
+
+            <div class="sub-item">
+                <span class="tag-dot"></span>
+                Generation
+            </div>
+
+            <div class="sub-item">
+                <span class="tag-dot"></span>
+                Source Attribution
+            </div>
+
+        </div>
+
+
+        <!-- Settings -->
+        <div class="sidebar-bottom">
+
+            <button
+                class="settings-button"
+                type="button"
+            >
+
+                <span>
+                    ⚙
+                </span>
+
+                <span>
+                    Settings
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MIDDLE KNOWLEDGE PANEL
+    ====================================================== -->
+
+    <main class="knowledge-panel">
+
+        <div class="knowledge-content">
+
+            <!-- Page title -->
+            <div class="page-title">
+
+                <h1>
+                    Upload Knowledge
+                </h1>
+
+                <p>
+                    Add documents to your searchable knowledge base.
+                </p>
+
+            </div>
+
+
+            <!-- =================================================
+                 UPLOAD AREA
+            ================================================== -->
+
+            <section class="upload-area">
+
+                <input
+                    type="file"
+                    id="pdfFile"
+                    accept=".pdf,application/pdf"
+                    hidden
+                >
+
+
+                <label
+                    for="pdfFile"
+                    class="upload-dropzone"
+                    id="uploadDropzone"
+                >
+
+                    <div class="upload-icon">
+                        ↑
+                    </div>
+
+                    <div class="upload-title">
+                        Click to upload or drag and drop
+                    </div>
+
+                    <div class="upload-description">
+                        PDF files only (max. 10MB)
+                    </div>
+
+                </label>
+
+
+                <div
+                    id="uploadStatus"
+                    class="upload-status"
+                >
+                    No document uploaded yet.
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 KNOWLEDGE BASE HEADER
+            ================================================== -->
+
+            <div class="knowledge-header">
+
+                <div class="breadcrumb">
+
+                    <span>
+                        Home
+                    </span>
+
+                    <span class="breadcrumb-arrow">
+                        ›
+                    </span>
+
+                    <strong>
+                        Knowledge Base
+                    </strong>
+
+                </div>
+
+
+                <div class="knowledge-actions">
+
+                    <button
+                        class="view-button"
+                        type="button"
+                        title="Grid view"
+                        aria-label="Grid view"
+                    >
+                        ▦
+                    </button>
+
+
+                    <button
+                        id="uploadButton"
+                        class="add-button"
+                        type="button"
+                        onclick="uploadPDF()"
+                    >
+
+                        <span>
+                            +
+                        </span>
+
+                        Add New
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 DOCUMENT TABLE
+            ================================================== -->
+
+            <section class="documents-section">
+
+                <div class="table-header">
+
+                    <div class="file-column">
+
+                        FILE NAME
+
+                        <span>
+                            ⌄
+                        </span>
+
+                    </div>
+
+                    <div>
+                        STATUS
+                    </div>
+
+                    <div>
+                        ADDED
+                    </div>
+
+                    <div>
+                        SIZE
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="documentList"
+                    class="document-list"
+                >
+
+                    <div class="document-empty">
+
+                        <div class="empty-icon">
+                            📄
+                        </div>
+
+                        <p>
+                            Upload a PDF to get started.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Hidden compatibility document card -->
+            <section
+                id="documentCard"
+                class="document-card hidden"
+            >
+
+                <div class="document-left">
+
+                    <div class="pdf-icon">
+                        PDF
+                    </div>
+
+                    <div>
+
+                        <h3 id="documentName">
+                            Document
+                        </h3>
+
+                        <p id="documentInfo">
+                            Ready for questions
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="ready-badge">
+
+                    <span class="ready-dot"></span>
+
+                    Ready
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         RIGHT CHAT PANEL
+    ====================================================== -->
+
+    <section class="chat-panel">
+
+        <!-- Chat header -->
+        <header class="chat-header">
+
+            <div class="chat-title">
+
+                <div class="ai-avatar">
+                    ◉
+                </div>
+
+                <div>
+
+                    <h2>
+                        AI Assistant
+                    </h2>
+
+                    <div class="rag-status">
+
+                        <span></span>
+
+                        RAG Active
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="chat-action"
+                type="button"
+                title="New chat"
+                aria-label="New chat"
+                onclick="clearChat()"
+            >
+                +
+            </button>
+
+        </header>
+
+
+        <!-- =================================================
+             CHAT MESSAGES
+        ================================================== -->
+
+        <div
+            id="chatBox"
+            class="chat-box"
+        >
+
+            <div class="welcome-message">
+
+                <div class="assistant-message-row">
+
+                    <div class="message-avatar">
+                        AI
+                    </div>
+
+                    <div>
+
+                        <div class="message assistant">
+
+                            Hello! I'm ready to answer questions
+                            about your uploaded documents.
+
+                        </div>
+
+                        <div class="message-time">
+                            Just now
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CHAT INPUT
+        ================================================== -->
+
+        <div class="chat-input-container">
+
+            <div class="input-area">
+
+                <input
+                    type="text"
+                    id="question"
+                    placeholder="Ask a question about your documents..."
+                    autocomplete="off"
+                    onkeydown="handleEnter(event)"
+                    disabled
+                >
+
+
+                <!-- Clear -->
+                <button
+                    id="clearButton"
+                    class="clear-button"
+                    type="button"
+                    onclick="clearQuestion()"
+                    title="Clear chat"
+                    aria-label="Clear chat"
+                    disabled
+                >
+
+                    <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+
+                        <path d="M3 6h18"></path>
+
+                        <path d="M8 6V4h8v2"></path>
+
+                        <path d="M19 6l-1 14H6L5 6"></path>
+
+                    </svg>
+
+                </button>
+
+
+                <!-- Send -->
+                <button
+                    id="sendButton"
+                    class="send-button"
+                    type="button"
+                    onclick="sendQuestion()"
+                    title="Send message"
+                    aria-label="Send message"
+                    disabled
+                >
+
+                    <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+
+                        <path d="M22 2L11 13"></path>
+
+                        <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
+
+                    </svg>
+
+                </button>
+
+            </div>
+
+
+            <div class="input-footer">
+
+                <span>
+                    AI can make mistakes.
+                </span>
+
+                <span>
+                    Verify important information.
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
